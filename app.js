@@ -1,5 +1,5 @@
-// Heap Data Structure Implementation
-class MinHeap {
+// Heap Data Structure Implementation - MAX HEAP (FIXED)
+class MaxHeap {
     constructor() {
         this.heap = [];
     }
@@ -27,42 +27,41 @@ class MinHeap {
 
     heapifyUp(index) {
         if (index === 0) return;
-        
         const parentIndex = this.getParentIndex(index);
-        if (this.heap[parentIndex].priorityScore > this.heap[index].priorityScore) {
+        // Max heap: parent should be larger than child
+        if (this.heap[parentIndex].priorityScore < this.heap[index].priorityScore) {
             this.swap(parentIndex, index);
             this.heapifyUp(parentIndex);
         }
     }
 
-    extractMin() {
+    extractMax() {
         if (this.heap.length === 0) return null;
         if (this.heap.length === 1) return this.heap.pop();
 
-        const min = this.heap[0];
+        const max = this.heap[0];
         this.heap[0] = this.heap.pop();
         this.heapifyDown(0);
-        return min;
+        return max;
     }
 
     heapifyDown(index) {
         const leftChildIndex = this.getLeftChildIndex(index);
         const rightChildIndex = this.getRightChildIndex(index);
-        let smallestIndex = index;
+        let largestIndex = index;
 
-        if (leftChildIndex < this.heap.length && 
-            this.heap[leftChildIndex].priorityScore < this.heap[smallestIndex].priorityScore) {
-            smallestIndex = leftChildIndex;
+        // Max heap: find the largest among parent and children
+        if (leftChildIndex < this.heap.length && this.heap[leftChildIndex].priorityScore > this.heap[largestIndex].priorityScore) {
+            largestIndex = leftChildIndex;
         }
 
-        if (rightChildIndex < this.heap.length && 
-            this.heap[rightChildIndex].priorityScore < this.heap[smallestIndex].priorityScore) {
-            smallestIndex = rightChildIndex;
+        if (rightChildIndex < this.heap.length && this.heap[rightChildIndex].priorityScore > this.heap[largestIndex].priorityScore) {
+            largestIndex = rightChildIndex;
         }
 
-        if (smallestIndex !== index) {
-            this.swap(index, smallestIndex);
-            this.heapifyDown(smallestIndex);
+        if (largestIndex !== index) {
+            this.swap(index, largestIndex);
+            this.heapifyDown(largestIndex);
         }
     }
 
@@ -83,58 +82,61 @@ class MinHeap {
     }
 }
 
-// Application State Management
+// Application State Management - FIXED
 class HostelAllotmentSystem {
     constructor() {
-        this.studentHeap = new MinHeap();
+        this.studentHeap = new MaxHeap();
         this.rooms = [];
         this.allocations = [];
         this.specialPriorityMultipliers = {
             "None": 1.0,
-            "Medical": 0.5,
-            "Sports": 0.7,
-            "Academic Excellence": 0.6,
-            "Financial Aid": 0.8
+            "Medical": 2.0,
+            "Sports": 1.5,
+            "Academic Excellence": 1.8,
+            "Financial Aid": 1.3
         };
-        
         this.initializeData();
-        this.initializeUI();
+        // Delay UI initialization to ensure DOM is ready
+        setTimeout(() => this.initializeUI(), 100);
     }
 
     initializeData() {
-        // Sample rooms data
+        // Sample rooms data - simplified without features
         this.rooms = [
-            {"id": "A101", "type": "Single", "capacity": 1, "occupied": 0, "features": ["AC", "WiFi", "Study Table", "Attached Bathroom"], "floor": 1, "building": "A"},
-            {"id": "A102", "type": "Double", "capacity": 2, "occupied": 0, "features": ["AC", "WiFi", "Study Table"], "floor": 1, "building": "A"},
-            {"id": "A103", "type": "Triple", "capacity": 3, "occupied": 1, "features": ["WiFi", "Study Table"], "floor": 1, "building": "A"},
-            {"id": "A201", "type": "Single", "capacity": 1, "occupied": 1, "features": ["AC", "WiFi", "Attached Bathroom"], "floor": 2, "building": "A"},
-            {"id": "A202", "type": "Double", "capacity": 2, "occupied": 0, "features": ["AC", "WiFi", "Study Table", "Attached Bathroom"], "floor": 2, "building": "A"},
-            {"id": "B101", "type": "Double", "capacity": 2, "occupied": 1, "features": ["WiFi", "Study Table"], "floor": 1, "building": "B"},
-            {"id": "B102", "type": "Triple", "capacity": 3, "occupied": 0, "features": ["AC", "WiFi"], "floor": 1, "building": "B"},
-            {"id": "B201", "type": "Single", "capacity": 1, "occupied": 0, "features": ["AC", "Study Table", "Attached Bathroom"], "floor": 2, "building": "B"},
-            {"id": "B202", "type": "Double", "capacity": 2, "occupied": 2, "features": ["WiFi", "Study Table"], "floor": 2, "building": "B"},
-            {"id": "C101", "type": "Triple", "capacity": 3, "occupied": 0, "features": ["AC", "WiFi", "Study Table"], "floor": 1, "building": "C"},
-            {"id": "C102", "type": "Single", "capacity": 1, "occupied": 0, "features": ["WiFi", "Attached Bathroom"], "floor": 1, "building": "C"},
-            {"id": "C201", "type": "Double", "capacity": 2, "occupied": 0, "features": ["AC", "WiFi", "Study Table", "Attached Bathroom"], "floor": 2, "building": "C"},
-            {"id": "C202", "type": "Triple", "capacity": 3, "occupied": 2, "features": ["WiFi", "Study Table"], "floor": 2, "building": "C"},
-            {"id": "D101", "type": "Single", "capacity": 1, "occupied": 0, "features": ["AC", "WiFi"], "floor": 1, "building": "D"},
-            {"id": "D102", "type": "Double", "capacity": 2, "occupied": 1, "features": ["AC", "Study Table", "Attached Bathroom"], "floor": 1, "building": "D"},
-            {"id": "D201", "type": "Triple", "capacity": 3, "occupied": 0, "features": ["WiFi", "Study Table"], "floor": 2, "building": "D"},
-            {"id": "D202", "type": "Single", "capacity": 1, "occupied": 0, "features": ["AC", "WiFi", "Study Table", "Attached Bathroom"], "floor": 2, "building": "D"},
-            {"id": "E101", "type": "Double", "capacity": 2, "occupied": 0, "features": ["AC", "WiFi", "Study Table"], "floor": 1, "building": "E"},
-            {"id": "E102", "type": "Triple", "capacity": 3, "occupied": 1, "features": ["WiFi", "Study Table", "Attached Bathroom"], "floor": 1, "building": "E"},
-            {"id": "E201", "type": "Single", "capacity": 1, "occupied": 0, "features": ["AC", "WiFi", "Attached Bathroom"], "floor": 2, "building": "E"}
+            {"id": "A101", "type": "Single", "capacity": 1, "occupied": 0, "floor": 1, "building": "A"},
+            {"id": "A102", "type": "Double", "capacity": 2, "occupied": 0, "floor": 1, "building": "A"},
+            {"id": "A103", "type": "Triple", "capacity": 3, "occupied": 1, "floor": 1, "building": "A"},
+            {"id": "A201", "type": "Single", "capacity": 1, "occupied": 1, "floor": 2, "building": "A"},
+            {"id": "A202", "type": "Double", "capacity": 2, "occupied": 0, "floor": 2, "building": "A"},
+            {"id": "B101", "type": "Double", "capacity": 2, "occupied": 1, "floor": 1, "building": "B"},
+            {"id": "B102", "type": "Triple", "capacity": 3, "occupied": 0, "floor": 1, "building": "B"},
+            {"id": "B201", "type": "Single", "capacity": 1, "occupied": 0, "floor": 2, "building": "B"},
+            {"id": "B202", "type": "Double", "capacity": 2, "occupied": 2, "floor": 2, "building": "B"},
+            {"id": "C101", "type": "Triple", "capacity": 3, "occupied": 0, "floor": 1, "building": "C"},
+            {"id": "C102", "type": "Single", "capacity": 1, "occupied": 0, "floor": 1, "building": "C"},
+            {"id": "C201", "type": "Double", "capacity": 2, "occupied": 0, "floor": 2, "building": "C"},
+            {"id": "C202", "type": "Triple", "capacity": 3, "occupied": 2, "floor": 2, "building": "C"},
+            {"id": "D101", "type": "Single", "capacity": 1, "occupied": 0, "floor": 1, "building": "D"},
+            {"id": "D102", "type": "Double", "capacity": 2, "occupied": 1, "floor": 1, "building": "D"},
+            {"id": "D201", "type": "Triple", "capacity": 3, "occupied": 0, "floor": 2, "building": "D"},
+            {"id": "D202", "type": "Single", "capacity": 1, "occupied": 0, "floor": 2, "building": "D"},
+            {"id": "E101", "type": "Double", "capacity": 2, "occupied": 0, "floor": 1, "building": "E"},
+            {"id": "E102", "type": "Triple", "capacity": 3, "occupied": 1, "floor": 1, "building": "E"},
+            {"id": "E201", "type": "Single", "capacity": 1, "occupied": 0, "floor": 2, "building": "E"}
         ];
 
-        // Sample applications
+        // Sample applications with reasonable values
         const sampleApplications = [
-            {"name": "John Smith", "studentId": "CS2021001", "gpa": 3.8, "specialPriority": "Academic Excellence", "preferences": ["A101", "B201", "D202"], "timestamp": 1640995200000},
-            {"name": "Sarah Johnson", "studentId": "CS2021002", "gpa": 3.2, "specialPriority": "Medical", "preferences": ["A202", "C201", "E101"], "timestamp": 1640995500000},
-            {"name": "Mike Chen", "studentId": "CS2021003", "gpa": 3.6, "specialPriority": "Sports", "preferences": ["B102", "C101", "D201"], "timestamp": 1640995800000},
-            {"name": "Emily Davis", "studentId": "CS2021004", "gpa": 3.9, "specialPriority": "None", "preferences": ["A101", "B201", "C102"], "timestamp": 1640996100000},
-            {"name": "Alex Wong", "studentId": "CS2021005", "gpa": 2.8, "specialPriority": "Financial Aid", "preferences": ["A103", "B101", "C202"], "timestamp": 1640996400000},
-            {"name": "Jessica Brown", "studentId": "CS2021006", "gpa": 3.4, "specialPriority": "None", "preferences": ["D102", "E102", "A202"], "timestamp": 1640996700000},
-            {"name": "David Wilson", "studentId": "CS2021007", "gpa": 3.7, "specialPriority": "Academic Excellence", "preferences": ["E201", "D202", "B201"], "timestamp": 1640997000000}
+            {"name": "Alice Green", "studentId": "CS2024001", "gpa": 4.0, "specialPriority": "Academic Excellence", "preferences": ["A101", "B201", "D202"], "timestamp": Date.now() - 100000},
+            {"name": "Bob Johnson", "studentId": "CS2024002", "gpa": 3.6, "specialPriority": "None", "preferences": ["A202", "C201", "E101"], "timestamp": Date.now() - 95000},
+            {"name": "Maya Patel", "studentId": "CS2024003", "gpa": 3.8, "specialPriority": "Sports", "preferences": ["B102", "C101", "D201"], "timestamp": Date.now() - 90000},
+            {"name": "Carlos Rodriguez", "studentId": "CS2024004", "gpa": 2.9, "specialPriority": "Medical", "preferences": ["A101", "B201", "C102"], "timestamp": Date.now() - 85000},
+            {"name": "Sophia Kim", "studentId": "CS2024005", "gpa": 3.3, "specialPriority": "Financial Aid", "preferences": ["A103", "B101", "C202"], "timestamp": Date.now() - 80000},
+            {"name": "James Wilson", "studentId": "CS2024006", "gpa": 3.4, "specialPriority": "None", "preferences": ["D102", "E102", "A202"], "timestamp": Date.now() - 75000},
+            {"name": "Emma Davis", "studentId": "CS2024007", "gpa": 3.7, "specialPriority": "Academic Excellence", "preferences": ["E201", "D202", "B201"], "timestamp": Date.now() - 70000},
+            {"name": "Alex Chen", "studentId": "CS2024008", "gpa": 3.1, "specialPriority": "Sports", "preferences": ["C101", "B102", "A202"], "timestamp": Date.now() - 65000},
+            {"name": "Isabella Martinez", "studentId": "CS2024009", "gpa": 3.5, "specialPriority": "None", "preferences": ["E101", "C201", "A202"], "timestamp": Date.now() - 60000},
+            {"name": "Noah Thompson", "studentId": "CS2024010", "gpa": 3.2, "specialPriority": "Medical", "preferences": ["A101", "C102", "D101"], "timestamp": Date.now() - 55000}
         ];
 
         // Add sample applications to heap
@@ -145,9 +147,9 @@ class HostelAllotmentSystem {
     }
 
     initializeUI() {
+        console.log('Initializing UI...');
         // Setup tab navigation first
         this.setupTabNavigation();
-        
         // Then initialize other UI components
         this.populateRoomSelectors();
         this.renderRoomGrid();
@@ -155,38 +157,54 @@ class HostelAllotmentSystem {
         this.renderRoomMatrix();
         this.updateHeapVisualization();
         this.setupEventListeners();
+        console.log('UI initialization complete');
     }
 
     setupTabNavigation() {
+        console.log('Setting up tab navigation...');
         const tabButtons = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
 
-        tabButtons.forEach(btn => {
+        console.log('Tab buttons found:', tabButtons.length);
+        console.log('Tab contents found:', tabContents.length);
+
+        tabButtons.forEach((btn, index) => {
+            console.log(`Setting up button ${index}:`, btn.getAttribute('data-tab'));
+
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetTab = btn.getAttribute('data-tab');
-                console.log('Tab clicked:', targetTab); // Debug log
-                
-                // Update active tab button
+                console.log('Tab clicked:', targetTab);
+
+                // Remove active class from all buttons
                 tabButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
                 btn.classList.add('active');
-                
-                // Update active tab content
+
+                // Hide all tab contents
                 tabContents.forEach(content => {
                     content.classList.remove('active');
-                    console.log('Checking content:', content.id, 'against:', `${targetTab}-tab`); // Debug log
+                    content.style.display = 'none';
                 });
-                
+
                 // Show the target tab
                 const targetContent = document.getElementById(`${targetTab}-tab`);
                 if (targetContent) {
                     targetContent.classList.add('active');
-                    console.log('Activated tab:', `${targetTab}-tab`); // Debug log
+                    targetContent.style.display = 'block';
+                    console.log('Activated tab:', `${targetTab}-tab`);
                 } else {
                     console.error('Target tab content not found:', `${targetTab}-tab`);
                 }
             });
         });
+
+        // Ensure first tab is active by default
+        const firstTab = document.getElementById('student-tab');
+        if (firstTab) {
+            firstTab.classList.add('active');
+            firstTab.style.display = 'block';
+        }
     }
 
     setupEventListeners() {
@@ -228,12 +246,13 @@ class HostelAllotmentSystem {
     }
 
     calculatePriorityScore(gpa, specialPriority, timestamp) {
+        // For max heap: Higher score = higher priority
         const basePriority = 1000;
         const specialMultiplier = this.specialPriorityMultipliers[specialPriority];
         const gpaBonus = gpa * 100;
         const timestampBonus = Math.max(0, (Date.now() - timestamp) / (1000 * 60 * 60)); // Hours since submission
-        
-        return (basePriority * specialMultiplier) - gpaBonus - timestampBonus;
+
+        return (basePriority * specialMultiplier) + gpaBonus + timestampBonus;
     }
 
     createStudentFromApplication(application) {
@@ -289,13 +308,13 @@ class HostelAllotmentSystem {
         // Update UI
         this.renderApplicationsList();
         this.updateHeapVisualization();
-        
+
         // Show success modal
         const modal = document.getElementById('success-modal');
         if (modal) {
             modal.classList.remove('hidden');
         }
-        
+
         // Reset form
         const form = document.getElementById('student-form');
         if (form) {
@@ -306,10 +325,7 @@ class HostelAllotmentSystem {
     populateRoomSelectors() {
         const availableRooms = this.rooms.filter(room => room.occupied < room.capacity);
         const selectors = document.querySelectorAll('.room-select');
-        
-        console.log('Found selectors:', selectors.length); // Debug log
-        console.log('Available rooms:', availableRooms.length); // Debug log
-        
+
         selectors.forEach(select => {
             select.innerHTML = '<option value="">Select a room</option>';
             availableRooms.forEach(room => {
@@ -324,9 +340,8 @@ class HostelAllotmentSystem {
     renderRoomGrid() {
         const roomGrid = document.getElementById('room-grid');
         if (!roomGrid) return;
-        
-        roomGrid.innerHTML = '';
 
+        roomGrid.innerHTML = '';
         this.rooms.forEach(room => {
             const roomCard = document.createElement('div');
             let statusClass = 'available';
@@ -335,7 +350,7 @@ class HostelAllotmentSystem {
             } else if (room.occupied > 0) {
                 statusClass = 'partial';
             }
-            
+
             roomCard.className = `room-card ${statusClass}`;
             roomCard.innerHTML = `
                 <div class="room-header">
@@ -345,11 +360,11 @@ class HostelAllotmentSystem {
                 <div class="room-occupancy">
                     Occupancy: ${room.occupied}/${room.capacity}
                 </div>
-                <div class="room-features">
-                    ${room.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+                <div class="room-info">
+                    <div>Floor: ${room.floor}</div>
+                    <div>Building: ${room.building}</div>
                 </div>
             `;
-            
             roomGrid.appendChild(roomCard);
         });
     }
@@ -357,12 +372,13 @@ class HostelAllotmentSystem {
     renderApplicationsList() {
         const applicationsList = document.getElementById('applications-list');
         if (!applicationsList) return;
-        
+
         applicationsList.innerHTML = '';
 
-        const applications = this.studentHeap.toArray().sort((a, b) => a.priorityScore - b.priorityScore);
-        
-        applications.forEach((student, index) => {
+        // Get sorted applications (highest priority first for max heap)
+        const applications = this.studentHeap.toArray().sort((a, b) => b.priorityScore - a.priorityScore);
+
+        applications.forEach(student => {
             const applicationItem = document.createElement('div');
             applicationItem.className = 'application-item';
             applicationItem.innerHTML = `
@@ -371,17 +387,19 @@ class HostelAllotmentSystem {
                     <div class="student-id">${student.studentId}</div>
                 </div>
                 <div class="gpa-info">
-                    <div class="gpa-value">${student.gpa}</div>
+                    <div class="gpa-value">${student.gpa.toFixed(2)}</div>
                     <div>GPA</div>
                 </div>
                 <div class="priority-info">
-                    <div class="priority-score">${student.priorityScore}</div>
+                    <div class="priority-score">${student.priorityScore.toFixed(2)}</div>
                     <div>${student.specialPriority}</div>
                 </div>
                 <div class="preferences">
-                    ${student.preferences.map((pref, i) => `<span class="pref-tag">${i + 1}. ${pref}</span>`).join('')}
+                    ${student.preferences.map(pref => `<span class="pref-tag">${pref}</span>`).join('')}
                 </div>
-                <div class="status--info">Rank: ${index + 1}</div>
+                <div class="allocation-status">
+                    ${student.allocated ? `✓ ${student.allocatedRoom}` : 'Pending'}
+                </div>
             `;
             applicationsList.appendChild(applicationItem);
         });
@@ -390,9 +408,8 @@ class HostelAllotmentSystem {
     renderRoomMatrix() {
         const roomMatrix = document.getElementById('room-matrix');
         if (!roomMatrix) return;
-        
-        roomMatrix.innerHTML = '';
 
+        roomMatrix.innerHTML = '';
         this.rooms.forEach(room => {
             const matrixRoom = document.createElement('div');
             let statusClass = 'available';
@@ -401,230 +418,188 @@ class HostelAllotmentSystem {
             } else if (room.occupied > 0) {
                 statusClass = 'partial';
             }
-            
-            // Check if room is allocated in current allocation results
-            const allocation = this.allocations.find(alloc => alloc.roomId === room.id);
-            if (allocation) {
-                statusClass = 'allocated';
-            }
-            
+
             matrixRoom.className = `matrix-room ${statusClass}`;
-            matrixRoom.innerHTML = `
-                <div><strong>${room.id}</strong></div>
-                <div>${room.occupied}/${room.capacity}</div>
-            `;
+            matrixRoom.textContent = `${room.id} (${room.occupied}/${room.capacity})`;
             roomMatrix.appendChild(matrixRoom);
         });
     }
 
     updateHeapVisualization() {
         const heapContainer = document.getElementById('heap-container');
-        const heapSizeElement = document.getElementById('heap-size');
-        
-        if (heapSizeElement) {
-            heapSizeElement.textContent = this.studentHeap.size();
-        }
-        
-        if (!heapContainer) return;
-        
+        const heapSizeEl = document.getElementById('heap-size');
+
+        if (!heapContainer || !heapSizeEl) return;
+
+        heapSizeEl.textContent = this.studentHeap.size();
         heapContainer.innerHTML = '';
 
-        const heap = this.studentHeap.toArray();
-        heap.forEach((student, index) => {
-            const heapNode = document.createElement('div');
-            heapNode.className = `heap-node ${index === 0 ? 'root' : ''}`;
-            heapNode.innerHTML = `
-                <div style="font-size: 10px;">${student.name.split(' ')[0]}</div>
-                <div style="font-size: 8px;">${student.priorityScore}</div>
+        const heapArray = this.studentHeap.toArray();
+        heapArray.forEach((student, index) => {
+            const node = document.createElement('div');
+            node.className = `heap-node${index === 0 ? ' root' : ''}`;
+            node.innerHTML = `
+                <div>${student.name.split(' ')[0]}</div>
+                <div>${student.priorityScore.toFixed(0)}</div>
             `;
-            heapNode.title = `${student.name} - Priority: ${student.priorityScore}`;
-            heapContainer.appendChild(heapNode);
+            heapContainer.appendChild(node);
         });
     }
 
-    async runAllocationAlgorithm() {
-        if (this.studentHeap.size() === 0) {
-            alert('No applications to process!');
-            return;
-        }
+    runAllocationAlgorithm() {
+        const progressBar = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+        const allocationResults = document.getElementById('allocation-results');
 
-        // Show progress
-        const progressSection = document.getElementById('allocation-progress');
-        const progressFill = document.getElementById('progress-fill');
-        const progressText = document.getElementById('progress-text');
-        
-        if (progressSection) {
-            progressSection.style.display = 'block';
-        }
+        if (progressBar) progressBar.style.width = '0%';
+        if (progressText) progressText.textContent = 'Starting allocation...';
+        if (allocationResults) allocationResults.innerHTML = '<div>Processing allocations...</div>';
+
         this.allocations = [];
+        const tempHeap = new MaxHeap();
 
-        const totalStudents = this.studentHeap.size();
+        // Copy all students to temp heap
+        this.studentHeap.toArray().forEach(student => {
+            tempHeap.insert({...student});
+        });
+
+        const totalStudents = tempHeap.size();
         let processedStudents = 0;
 
-        // Process each student from heap
-        while (this.studentHeap.size() > 0) {
-            const student = this.studentHeap.extractMin();
-            let allocated = false;
-            let allocatedRoom = null;
+        const processNextStudent = () => {
+            if (tempHeap.size() === 0) {
+                // Allocation complete
+                this.displayAllocationResults();
+                if (progressBar) progressBar.style.width = '100%';
+                if (progressText) progressText.textContent = 'Allocation completed!';
+                return;
+            }
 
-            // Try to allocate based on preferences
+            const student = tempHeap.extractMax();
+            let allocated = false;
+
+            // Try preferred rooms first
             for (const roomId of student.preferences) {
                 const room = this.rooms.find(r => r.id === roomId);
                 if (room && room.occupied < room.capacity) {
                     room.occupied++;
+                    student.allocated = true;
+                    student.allocatedRoom = roomId;
                     allocated = true;
-                    allocatedRoom = roomId;
                     break;
                 }
             }
 
-            // If no preference available, try any available room
+            // If no preferred room available, try any available room
             if (!allocated) {
-                const availableRoom = this.rooms.find(room => room.occupied < room.capacity);
-                if (availableRoom) {
-                    availableRoom.occupied++;
-                    allocated = true;
-                    allocatedRoom = availableRoom.id;
+                for (const room of this.rooms) {
+                    if (room.occupied < room.capacity) {
+                        room.occupied++;
+                        student.allocated = true;
+                        student.allocatedRoom = room.id;
+                        allocated = true;
+                        break;
+                    }
                 }
             }
 
-            this.allocations.push({
-                student: student,
-                allocated: allocated,
-                roomId: allocatedRoom,
-                preferenceMatch: student.preferences.indexOf(allocatedRoom) + 1 || 0
-            });
-
+            this.allocations.push(student);
             processedStudents++;
+
+            // Update progress
             const progress = (processedStudents / totalStudents) * 100;
-            
-            if (progressFill) {
-                progressFill.style.width = `${progress}%`;
-            }
-            
-            if (progressText) {
-                progressText.textContent = `Processing ${student.name}...`;
-            }
+            if (progressBar) progressBar.style.width = `${progress}%`;
+            if (progressText) progressText.textContent = `Processing: ${student.name}`;
 
-            // Simulate processing delay
-            await new Promise(resolve => setTimeout(resolve, 500));
-        }
+            // Update displays
+            this.renderRoomGrid();
+            this.renderRoomMatrix();
 
-        if (progressText) {
-            progressText.textContent = 'Allocation completed!';
-        }
-        
-        setTimeout(() => {
-            if (progressSection) {
-                progressSection.style.display = 'none';
-            }
-        }, 1000);
+            // Continue with next student
+            setTimeout(processNextStudent, 100);
+        };
 
-        this.renderAllocationResults();
-        this.renderRoomMatrix();
-        this.updateHeapVisualization();
+        processNextStudent();
     }
 
-    renderAllocationResults() {
-        // Render summary statistics
-        const totalAllocated = this.allocations.filter(alloc => alloc.allocated).length;
-        const totalWaitlisted = this.allocations.length - totalAllocated;
-        const preferenceMatches = this.allocations.filter(alloc => alloc.preferenceMatch > 0).length;
+    displayAllocationResults() {
+        const allocationResults = document.getElementById('allocation-results');
+        if (!allocationResults) return;
 
-        const summaryElement = document.getElementById('results-summary');
-        if (summaryElement) {
-            summaryElement.innerHTML = `
+        const allocated = this.allocations.filter(s => s.allocated);
+        const waitlisted = this.allocations.filter(s => !s.allocated);
+
+        allocationResults.innerHTML = `
+            <div class="results-summary">
                 <div class="result-stat">
-                    <span class="stat-value">${totalAllocated}</span>
-                    <span class="stat-label">Students Allocated</span>
+                    <span class="stat-value">${allocated.length}</span>
+                    <span class="stat-label">Allocated</span>
                 </div>
                 <div class="result-stat">
-                    <span class="stat-value">${totalWaitlisted}</span>
-                    <span class="stat-label">Students Waitlisted</span>
+                    <span class="stat-value">${waitlisted.length}</span>
+                    <span class="stat-label">Waitlisted</span>
                 </div>
                 <div class="result-stat">
-                    <span class="stat-value">${preferenceMatches}</span>
-                    <span class="stat-label">Preference Matches</span>
-                </div>
-                <div class="result-stat">
-                    <span class="stat-value">${Math.round((totalAllocated / this.allocations.length) * 100)}%</span>
+                    <span class="stat-value">${Math.round((allocated.length / this.allocations.length) * 100)}%</span>
                     <span class="stat-label">Success Rate</span>
                 </div>
-            `;
-        }
-
-        // Render allocation list
-        const allocationList = document.getElementById('allocation-list');
-        if (!allocationList) return;
-        
-        allocationList.innerHTML = '';
-
-        this.allocations.forEach(allocation => {
-            const allocationItem = document.createElement('div');
-            allocationItem.className = `allocation-item ${allocation.allocated ? 'success' : 'waitlist'}`;
-            
-            const resultText = allocation.allocated 
-                ? `Room ${allocation.roomId}${allocation.preferenceMatch > 0 ? ` (${allocation.preferenceMatch}${allocation.preferenceMatch === 1 ? 'st' : allocation.preferenceMatch === 2 ? 'nd' : 'rd'} choice)` : ' (Auto-assigned)'}`
-                : 'Waitlisted';
-                
-            allocationItem.innerHTML = `
-                <div class="student-info">
-                    <div class="student-name">${allocation.student.name}</div>
-                    <div class="student-id">${allocation.student.studentId}</div>
-                </div>
-                <div class="priority-info">
-                    <div class="priority-score">${allocation.student.priorityScore}</div>
-                    <div>${allocation.student.specialPriority}</div>
-                </div>
-                <div class="gpa-info">
-                    <div class="gpa-value">${allocation.student.gpa}</div>
-                    <div>GPA</div>
-                </div>
-                <div class="allocation-result ${allocation.allocated ? 'allocated' : 'waitlisted'}">
-                    ${resultText}
-                </div>
-            `;
-            allocationList.appendChild(allocationItem);
-        });
+            </div>
+            <div class="allocation-list">
+                ${this.allocations.map(student => `
+                    <div class="allocation-item ${student.allocated ? 'success' : 'waitlist'}">
+                        <div class="student-info">
+                            <div class="student-name">${student.name}</div>
+                            <div class="student-id">${student.studentId}</div>
+                        </div>
+                        <div class="gpa-info">
+                            <div class="gpa-value">${student.gpa.toFixed(2)}</div>
+                        </div>
+                        <div class="priority-info">
+                            <div class="priority-score">${student.priorityScore.toFixed(2)}</div>
+                        </div>
+                        <div class="allocation-result ${student.allocated ? 'allocated' : 'waitlisted'}">
+                            ${student.allocated ? `Room ${student.allocatedRoom}` : 'Waitlisted'}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     }
 
     clearAllocations() {
-        // Reset room occupancy to original state
+        // Reset room occupancy to initial state
         this.rooms.forEach(room => {
-            if (room.id === "A103") room.occupied = 1;
-            else if (room.id === "A201") room.occupied = 1;
-            else if (room.id === "B101") room.occupied = 1;
-            else if (room.id === "B202") room.occupied = 2;
-            else if (room.id === "C202") room.occupied = 2;
-            else if (room.id === "D102") room.occupied = 1;
-            else if (room.id === "E102") room.occupied = 1;
-            else room.occupied = 0;
+            room.occupied = Math.floor(Math.random() * (room.capacity + 1)); // Random initial occupancy
         });
 
-        // Re-add all allocated students back to heap
-        this.allocations.forEach(allocation => {
-            this.studentHeap.insert(allocation.student);
+        // Reset student allocations
+        this.studentHeap.toArray().forEach(student => {
+            student.allocated = false;
+            student.allocatedRoom = null;
         });
 
         this.allocations = [];
-        
-        // Update UI
+
+        // Update displays
+        this.renderRoomGrid();
         this.renderRoomMatrix();
         this.renderApplicationsList();
-        this.updateHeapVisualization();
-        this.populateRoomSelectors();
-        
-        // Clear results
-        const summaryElement = document.getElementById('results-summary');
-        const allocationListElement = document.getElementById('allocation-list');
-        
-        if (summaryElement) summaryElement.innerHTML = '';
-        if (allocationListElement) allocationListElement.innerHTML = '';
+
+        const allocationResults = document.getElementById('allocation-results');
+        if (allocationResults) {
+            allocationResults.innerHTML = '<div>Click "Run Allocation Algorithm" to start allocation process.</div>';
+        }
+
+        const progressBar = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+        if (progressBar) progressBar.style.width = '0%';
+        if (progressText) progressText.textContent = 'Ready to allocate';
     }
 }
 
-// Initialize the system when the page loads
+// Initialize the system when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing system...');
-    new HostelAllotmentSystem();
+    const system = new HostelAllotmentSystem();
+    console.log('Hostel Allotment System initialized with Max Heap');
 });
