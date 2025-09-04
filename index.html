@@ -3,147 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hostel Room Allotment System</title>
+    <title>Hostel Room Allocation System - Max Heap</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <header class="header">
-            <h1>Hostel Room Allotment System</h1>
-            <p class="header-subtitle">Priority-based room allocation using heap data structure</p>
+            <h1>Hostel Room Allocation System</h1>
+            <p class="header-subtitle">Max Heap Priority Queue Based Room Assignment</p>
         </header>
 
         <!-- Tab Navigation -->
-        <div class="tab-navigation">
-            <button class="tab-btn active" data-tab="student">Student Application</button>
-            <button class="tab-btn" data-tab="admin">Admin Dashboard</button>
-        </div>
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="student">📝 Student Application</button>
+            <button class="tab-btn" data-tab="admin">📊 Admin Dashboard</button>
+        </nav>
 
-        <!-- Student Application Tab -->
+        <!-- Student Tab Content -->
         <div id="student-tab" class="tab-content active">
             <div class="student-portal">
-                <div class="application-form-section">
-                    <div class="card">
-                        <div class="card__body">
-                            <h2>Student Application Form</h2>
-                            <form id="student-form" class="student-form">
-                                <div class="form-group">
-                                    <label class="form-label" for="student-name">Full Name</label>
-                                    <input type="text" id="student-name" class="form-control" required>
-                                </div>
+                <!-- Student Form -->
+                <div class="card">
+                    <div class="card__body">
+                        <h3>Student Application Form</h3>
+                        <form id="student-form" class="student-form">
+                            <div class="form-group">
+                                <label class="form-label" for="student-name">Full Name</label>
+                                <input type="text" id="student-name" class="form-control" required>
+                            </div>
 
-                                <div class="form-group">
-                                    <label class="form-label" for="student-id">Student ID</label>
-                                    <input type="text" id="student-id" class="form-control" required>
-                                </div>
+                            <div class="form-group">
+                                <label class="form-label" for="student-id">Student ID</label>
+                                <input type="text" id="student-id" class="form-control" required>
+                            </div>
 
-                                <div class="form-group">
-                                    <label class="form-label" for="gpa">GPA (0.0 - 4.0)</label>
-                                    <input type="number" id="gpa" class="form-control" min="0" max="4" step="0.1" required>
-                                </div>
+                            <div class="form-group">
+                                <label class="form-label" for="gpa">GPA (0.0 - 4.0)</label>
+                                <input type="number" id="gpa" class="form-control" min="0" max="4.0" step="0.1" required>
+                            </div>
 
-                                <div class="form-group">
-                                    <label class="form-label" for="special-priority">Special Priority</label>
-                                    <select id="special-priority" class="form-control">
-                                        <option value="None">None</option>
-                                        <option value="Medical">Medical Condition</option>
-                                        <option value="Sports">Sports Quota</option>
-                                        <option value="Academic Excellence">Academic Excellence</option>
-                                        <option value="Financial Aid">Financial Aid</option>
-                                    </select>
-                                </div>
+                            <div class="form-group">
+                                <label class="form-label" for="special-priority">Special Priority</label>
+                                <select id="special-priority" class="form-control">
+                                    <option value="None">None</option>
+                                    <option value="Medical">Medical Condition</option>
+                                    <option value="Sports">Sports Quota</option>
+                                    <option value="Academic Excellence">Academic Excellence</option>
+                                    <option value="Financial Aid">Financial Aid</option>
+                                </select>
+                            </div>
 
-                                <div class="form-group">
-                                    <label class="form-label">Room Preferences (Select up to 3)</label>
-                                    <div class="room-preferences">
-                                        <div class="preference-slots">
-                                            <div class="preference-slot">
-                                                <label class="form-label">1st Choice</label>
-                                                <select id="pref-1" class="form-control room-select">
-                                                    <option value="">Select a room</option>
-                                                </select>
-                                            </div>
-                                            <div class="preference-slot">
-                                                <label class="form-label">2nd Choice</label>
-                                                <select id="pref-2" class="form-control room-select">
-                                                    <option value="">Select a room</option>
-                                                </select>
-                                            </div>
-                                            <div class="preference-slot">
-                                                <label class="form-label">3rd Choice</label>
-                                                <select id="pref-3" class="form-control room-select">
-                                                    <option value="">Select a room</option>
-                                                </select>
-                                            </div>
-                                        </div>
+                            <div class="room-preferences">
+                                <label class="form-label">Room Preferences (Select up to 3)</label>
+                                <div class="preference-slots">
+                                    <div class="preference-slot">
+                                        <label class="form-label">1st Preference</label>
+                                        <select id="pref-1" class="form-control room-select"></select>
+                                    </div>
+                                    <div class="preference-slot">
+                                        <label class="form-label">2nd Preference</label>
+                                        <select id="pref-2" class="form-control room-select"></select>
+                                    </div>
+                                    <div class="preference-slot">
+                                        <label class="form-label">3rd Preference</label>
+                                        <select id="pref-3" class="form-control room-select"></select>
                                     </div>
                                 </div>
+                            </div>
 
-                                <button type="submit" class="btn btn--primary btn--full-width">Submit Application</button>
-                            </form>
-                        </div>
+                            <button type="submit" class="btn btn--primary btn--full-width">Submit Application</button>
+                        </form>
                     </div>
                 </div>
 
-                <div class="room-details-section">
-                    <div class="card">
-                        <div class="card__body">
-                            <h3>Available Rooms</h3>
-                            <div class="room-grid" id="room-grid"></div>
+                <!-- Available Rooms -->
+                <div class="card">
+                    <div class="card__body">
+                        <h3>Available Rooms</h3>
+                        <div id="room-grid" class="room-grid">
+                            <!-- Rooms will be populated here -->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Admin Dashboard Tab -->
+        <!-- Admin Tab Content -->
         <div id="admin-tab" class="tab-content">
             <div class="admin-dashboard">
+                <!-- Dashboard Header -->
                 <div class="dashboard-header">
                     <h2>Admin Dashboard</h2>
                     <div class="dashboard-actions">
-                        <button class="btn btn--primary" id="allocate-btn">Run Allocation Algorithm</button>
-                        <button class="btn btn--secondary" id="clear-allocations">Clear Allocations</button>
+                        <button id="allocate-btn" class="btn btn--primary">Run Allocation Algorithm</button>
+                        <button id="clear-allocations" class="btn btn--secondary">Clear Allocations</button>
                     </div>
                 </div>
 
                 <div class="dashboard-content">
+                    <!-- Student Applications Section -->
                     <div class="applications-section">
                         <div class="card">
                             <div class="card__body">
-                                <h3>Student Applications (Priority Order)</h3>
-                                <div class="heap-visualization" id="heap-viz">
+                                <h3>Student Applications (Priority Order - Max Heap)</h3>
+
+                                <!-- Heap Visualization -->
+                                <div class="heap-visualization">
                                     <div class="heap-info">
+                                        <h4>Priority Queue Visualization</h4>
                                         <span class="heap-size">Heap Size: <span id="heap-size">0</span></span>
                                     </div>
-                                    <div class="heap-container" id="heap-container"></div>
+                                    <div id="heap-container" class="heap-container">
+                                        <!-- Heap nodes will be populated here -->
+                                    </div>
                                 </div>
-                                <div class="applications-list" id="applications-list"></div>
+
+                                <div id="applications-list" class="applications-list">
+                                    <!-- Applications will be populated here -->
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Room Matrix Section -->
                     <div class="rooms-section">
                         <div class="card">
                             <div class="card__body">
                                 <h3>Room Availability Matrix</h3>
-                                <div class="room-matrix" id="room-matrix"></div>
+                                <div id="room-matrix" class="room-matrix">
+                                    <!-- Room matrix will be populated here -->
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Allocation Results -->
                     <div class="allocation-results-section">
                         <div class="card">
                             <div class="card__body">
                                 <h3>Allocation Results</h3>
-                                <div class="allocation-progress" id="allocation-progress" style="display: none;">
+
+                                <!-- Progress Bar -->
+                                <div class="allocation-progress">
                                     <div class="progress-bar">
-                                        <div class="progress-fill" id="progress-fill"></div>
+                                        <div class="progress-fill"></div>
                                     </div>
-                                    <div class="progress-text" id="progress-text">Processing allocations...</div>
+                                    <div class="progress-text">Ready to allocate</div>
                                 </div>
-                                <div class="results-summary" id="results-summary"></div>
-                                <div class="allocation-list" id="allocation-list"></div>
+
+                                <div id="allocation-results">
+                                    <div>Click "Run Allocation Algorithm" to start allocation process.</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -153,13 +164,13 @@
     </div>
 
     <!-- Success Modal -->
-    <div class="modal hidden" id="success-modal">
+    <div id="success-modal" class="modal hidden">
         <div class="modal-overlay">
             <div class="modal-content">
                 <h3>Application Submitted Successfully!</h3>
                 <p>Your application has been added to the priority queue.</p>
                 <div class="modal-actions">
-                    <button class="btn btn--primary" id="close-modal">Close</button>
+                    <button id="close-modal" class="btn btn--primary">Close</button>
                 </div>
             </div>
         </div>
