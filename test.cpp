@@ -11,7 +11,7 @@
 
 using namespace std;
 
-// Room class to represent hostel rooms - SIMPLIFIED WITHOUT FEATURES
+// Room class to represent hostel rooms
 class Room {
 public:
     string roomId;
